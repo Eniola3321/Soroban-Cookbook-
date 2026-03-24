@@ -88,6 +88,7 @@ fn test_proxy_call_success() {
     assert_eq!(returned_invoker, user_address);
 }
 
+
 #[test]
 fn test_get_auth_context() {
     let env = Env::default();
