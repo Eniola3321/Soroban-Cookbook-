@@ -141,36 +141,6 @@ const ACTION_AUDIT: Symbol = symbol_short!("audit");
 // Contract
 // ---------------------------------------------------------------------------
 
-/// Payload for an admin-action event.
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct AdminActionEventData {
-    /// Identifier of the specific action performed.
-    pub action: Symbol,
-    /// Timestamp when the action was executed.
-    pub timestamp: u64,
-}
-
-/// Payload for an audit-trail event.
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct AuditTrailEventData {
-    /// Free-form description or reference tag.
-    pub details: Symbol,
-    /// Ledger timestamp at emission time.
-    pub timestamp: u64,
-}
-
-/// Namespace symbol used as the first topic of every event this contract emits.
-const CONTRACT_NS: Symbol = symbol_short!("auth");
-/// Naming convention: `snake_case` action names in topic[1].
-const ACTION_ADMIN: Symbol = symbol_short!("admin");
-const ACTION_AUDIT: Symbol = symbol_short!("audit");
-
-// ---------------------------------------------------------------------------
-// Contract
-// ---------------------------------------------------------------------------
-
 #[contract]
 pub struct AuthContract;
 
@@ -456,10 +426,8 @@ impl AuthContract {
             .set(&DataKey::UserRole(account.clone()), &role);
 
         // Emit audit event with before/after state
-        env.events().publish(
-            (CONTRACT_NS, ACTION_AUDIT, account),
-            (old_role, role),
-        );
+        env.events()
+            .publish((CONTRACT_NS, ACTION_AUDIT, account), (old_role, role));
 
         Ok(())
     }
@@ -480,10 +448,8 @@ impl AuthContract {
             .remove(&DataKey::UserRole(account.clone()));
 
         // Emit audit event
-        env.events().publish(
-            (CONTRACT_NS, ACTION_AUDIT, account),
-            (old_role, Role::User),
-        );
+        env.events()
+            .publish((CONTRACT_NS, ACTION_AUDIT, account), (old_role, Role::User));
 
         Ok(())
     }
@@ -562,10 +528,8 @@ impl AuthContract {
             .set(&DataKey::TimeLock, &unlock_time);
 
         // Audit trail for timelock configuration
-        env.events().publish(
-            (CONTRACT_NS, ACTION_AUDIT, admin),
-            (old_time, unlock_time),
-        );
+        env.events()
+            .publish((CONTRACT_NS, ACTION_AUDIT, admin), (old_time, unlock_time));
 
         Ok(())
     }
@@ -604,10 +568,8 @@ impl AuthContract {
             .set(&DataKey::CooldownPeriod, &period);
 
         // Audit trail for cooldown configuration
-        env.events().publish(
-            (CONTRACT_NS, ACTION_AUDIT, admin),
-            (old_period, period),
-        );
+        env.events()
+            .publish((CONTRACT_NS, ACTION_AUDIT, admin), (old_period, period));
 
         Ok(())
     }
@@ -657,10 +619,8 @@ impl AuthContract {
         env.storage().instance().set(&DataKey::State, &state);
 
         // Audit trail for state change
-        env.events().publish(
-            (CONTRACT_NS, ACTION_AUDIT, admin),
-            (old_state, state),
-        );
+        env.events()
+            .publish((CONTRACT_NS, ACTION_AUDIT, admin), (old_state, state));
 
         Ok(())
     }
